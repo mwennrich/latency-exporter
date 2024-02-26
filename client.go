@@ -96,7 +96,7 @@ func (m *metrics) run() {
 func (m *metrics) measureRequest(peer string) (string, error) {
 
 	timeStart := time.Now()
-	req, err := http.NewRequest("GET", "http://"+peer+"/ping", nil)
+	req, err := http.NewRequestWithContext(context.Background(), "GET", "http://"+peer+"/ping", nil)
 	if err != nil {
 		return "", fmt.Errorf("error creating request: %w", err)
 	}
@@ -105,12 +105,14 @@ func (m *metrics) measureRequest(peer string) (string, error) {
 	res, err := m.httpClients[peer].Do(req)
 	timeDone := time.Now()
 
-	if res.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("error response: %d", res.StatusCode)
-	}
 	if err != nil {
 		return "", fmt.Errorf("error sending request: %w", err)
 	}
+
+	if res != nil && res.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("error response: %d", res.StatusCode)
+	}
+
 	_, err = io.ReadAll(res.Body)
 	if err != nil {
 		return "", fmt.Errorf("error reading body: %w", err)
@@ -120,6 +122,9 @@ func (m *metrics) measureRequest(peer string) (string, error) {
 
 	// fmt.Println("Local address:", m.connDetails[peer].addr.String())
 
+	if m.connDetails[peer].addr == nil {
+		return "", fmt.Errorf("error getting local address")
+	}
 	return m.connDetails[peer].addr.String(), nil
 }
 
