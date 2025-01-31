@@ -27,7 +27,7 @@ func main() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_,err:=w.Write([]byte("pong"))
 		if err!=nil{
-			slog.Error("error writing response",err)
+			slog.Error("error writing response", "error", err)
 		}
 	})
 
