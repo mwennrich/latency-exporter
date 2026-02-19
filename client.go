@@ -117,7 +117,9 @@ func (m *metrics) measureRequest(peer string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error reading body: %w", err)
 	}
-	res.Body.Close()
+	if closeErr := res.Body.Close(); closeErr != nil {
+		return "", fmt.Errorf("error closing body: %w", closeErr)
+	}
 	m.totalDuration.WithLabelValues(peer).Observe(float64(timeDone.Sub(timeStart).Seconds()))
 
 	// fmt.Println("Local address:", m.connDetails[peer].addr.String())
