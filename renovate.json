@@ -3,4 +3,9 @@
   "extends": [
     "config:recommended"
   ]
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true
+    }
 }
